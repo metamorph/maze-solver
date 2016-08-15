@@ -13,25 +13,18 @@
       (parse-maze)
       (solve-maze)))
 
-(defn path-of [dirs]
-  (vec (mapcat (fn [[d n]] (repeat n d)) dirs)))
+(defn path-of [& pairs]
+  (mapcat (fn [[n d]] (repeat n d)) pairs))
 
 (deftest normal-mode
-  (is (= (path-of [[:north 9]
-                   [:east 6]
-                   [:south 2]
-                   [:east 2]
-                   [:south 2]
-                   [:west 4]
-                   [:north 2]
-                   [:west 2]
-                   [:south 7]]) (solution-for "normal" "001")))
-  (is (= (path-of [[:east x]
-                   [:north x]
-                   [:west x]
-                   [:south x]
-                   [:west x]
-                   [:north x]
-                   [:east x]]) (solution-for "normal" "002")))
-  (is (= [] (solution-for "normal" "003")))
-  (is (= [] (solution-for "normal" "004"))))
+  (is (= (path-of [9 :n]
+                  [6 :e]
+                  [2 :s]
+                  [2 :e]
+                  [2 :s]
+                  [4 :w]
+                  [4 :w]
+                  [2 :n]
+                  [2 :w]
+                  [7 :s])
+         (solution-for "normal" "001"))))
