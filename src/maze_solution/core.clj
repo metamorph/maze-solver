@@ -1,6 +1,4 @@
 (ns maze-solution.core)
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn parse-maze [data] {})
+(defn solve-maze [maze] [])
