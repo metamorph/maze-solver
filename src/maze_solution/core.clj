@@ -13,15 +13,19 @@
 (defn neighbours
   "The coordinates around a cell"
   [xy]
-  (map #(map + xy %)
-       [[-1 0] [0 -1] [1 0] [0 1]]))
+  (map #(map + xy %) [[-1 0] [0 -1] [1 0] [0 1]]))
 
-(defn step
-  "Perform the 'next step' - the next version - of the maze solution."
-  [maze]
-  (if (:done maze)
-    maze
-    maze))
+(defn to-directions
+  "Convert a set of coordinates into n/e/s/w steps"
+  [coords] coords)
+
+(defn next-step
+  "TODO: Perform the 'next step' - the next version - of the maze solution."
+  [maze] maze)
+
+(defn step [maze] (if (:done maze) maze
+                      ;; Short-circuit until we've implemented 'next-step'
+                      (next-step (assoc maze :done true))))
 
 (defn parse-maze
   "Read a maze as string - convert internal representation"
@@ -46,4 +50,11 @@
      :trail          []
      :visited        #{starting-point}}))
 
-(defn solve-maze [maze] [])
+(defn solve-maze [maze]
+  (let [;; Drop all solution steps until a path have been found
+        solution (->> (iterate step maze)
+                      (drop-while #(not (:done %)))
+                      (first))]
+    ;; Prepend the starting point to the coords of the solution, and convert to 'directions'
+    (to-directions (cons (:starting-point solution)
+                         (:trail solution)))))
