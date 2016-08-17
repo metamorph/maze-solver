@@ -2,29 +2,69 @@
 
 (defn m-get
   "Get the value in a 2d array. Returns nil if out-of-bounds."
-  [maze [x y]]
+  [arr [x y]]
   (if (and (>= x 0)
            (>= y 0)
-           (>= (count maze) y)
-           (>= (count (maze y)) x))
-    ((maze y) x)
+           (>= (count arr) y)
+           (>= (count (arr y)) x))
+    ((arr y) x)
     nil))
 
 (defn neighbours
-  "The coordinates around a cell"
-  [xy]
-  (map #(map + xy %) [[-1 0] [0 -1] [1 0] [0 1]]))
+  "TODO: The coordinates around a cell."
+  [[x y]]
+  (map (fn [[dx dy]] [(+ x dx) (+ y dy)])
+       [[-1 0] [0 -1] [1 0] [0 1]]))
 
-(defn to-directions
-  "Convert a set of coordinates into n/e/s/w steps"
-  [coords] coords)
+(defn remove-visited
+  "Removes those neighbours that are in the set +visited+"
+  [neighbours visited]
+  (filter (fn [[x y]] (not (some? (visited [x y])))) neighbours))
+
+(defn find-endcell
+  "TODO: Return the end-cell if it's one of the neighbours"
+  [cells neighbours] nil)
+
+(defn create-steps
+  "TODO: Convert a series of coordinates into a sequence of directional
+  steps (:north, :south, :west, :east)"
+  [cells] nil)
 
 (defn next-step
-  "TODO: Perform the 'next step' - the next version - of the maze solution."
-  [maze] maze)
+  "Find the next step in the maze solution"
+  [{:keys [position visited trail cells] :as maze}]
+  (let [
+        ;; Find the neighbours
+        neighbours (neighbours position)
+        ;; Remove visited cells
+        neighbours (remove-visited neighbours visited)]
+    (if (empty? neighbours)
+      ;; All neighbours are visited - need to backtrack!
+      ;; drop the last element in trail, and set that as position
+      (-> maze
+          (assoc :position (last trail)) ;; update current position
+          (assoc :trail (drop-last trail)) ;; update trail
+          (assoc :visited (conj visited position))) ;; set position as visited
+
+      ;; Look for the end cell amongst the neighbours
+      (if-let [end-cell (find-endcell cells neighbours)]
+        ;; We found it! Add it to the trail and call it a day
+        (-> maze
+            (assoc :trail (conj trail end-cell))
+            (assoc :done true))
+
+        ;; Noop - select a random neighbour and carry on)
+        (-> maze
+            (assoc :position (rand-nth neighbours))
+            (assoc :visited (conj visited position)))))))
+
+(defn render-solution
+  ;; TODO: Render the solution to stdout.
+  [maze] "")
+
 
 (defn step [maze] (if (:done maze) maze
-                      ;; Short-circuit until we've implemented 'next-step'
+                      ;; TODO: Short-circuit until we've implemented 'next-step'
                       (next-step (assoc maze :done true))))
 
 (defn parse-maze
@@ -55,6 +95,8 @@
         solution (->> (iterate step maze)
                       (drop-while #(not (:done %)))
                       (first))]
-    ;; Prepend the starting point to the coords of the solution, and convert to 'directions'
-    (to-directions (cons (:starting-point solution)
-                         (:trail solution)))))
+    ;; The steps through the maze is in :trail
+    ;; Convert that to steps
+    (do
+      (prn (render-solution solution))
+      (create-steps (:trail solution)))))
