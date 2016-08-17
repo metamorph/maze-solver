@@ -16,15 +16,21 @@
 (defn path-of [& pairs]
   (mapcat (fn [[n d]] (repeat n d)) pairs))
 
+(deftest creating-path
+  (is (= [:north :north :north]
+         (create-steps [[5 5] [5 4] [5 3] [5 2]])))
+  (is (= [:north :east :south :west]
+         (create-steps [[5 5] [5 4] [6 4] [6 5] [5 5]]))))
+
 (deftest normal-mode
-  (is (= (path-of [9 :n]
-                  [6 :e]
-                  [2 :s]
-                  [2 :e]
-                  [2 :s]
-                  [4 :w]
-                  [4 :w]
-                  [2 :n]
-                  [2 :w]
-                  [7 :s])
+  (is (= (path-of [9 :north]
+                  [6 :east]
+                  [2 :south]
+                  [2 :east]
+                  [2 :south]
+                  [4 :west]
+                  [4 :west]
+                  [2 :north]
+                  [2 :west]
+                  [7 :south])
          (solution-for "normal" "001"))))

@@ -11,10 +11,16 @@
     nil))
 
 (defn neighbours
-  "TODO: The coordinates around a cell."
+  "TODO: Make prettier. The coordinates around a cell."
   [[x y]]
   (map (fn [[dx dy]] [(+ x dx) (+ y dy)])
        [[-1 0] [0 -1] [1 0] [0 1]]))
+
+(defn neighbours-with-direction
+  "TODO: Duplication ..."
+  [[x y]]
+  (map (fn [[dx dy d]] [(+ x dx) (+ y dy) d])
+       [[-1 0 :west] [0 -1 :north] [1 0 :east] [0 1 :south]]))
 
 (defn remove-visited
   "Removes those neighbours that are in the set +visited+"
@@ -26,9 +32,22 @@
   [cells neighbours] nil)
 
 (defn create-steps
-  "TODO: Convert a series of coordinates into a sequence of directional
+  "Convert a series of coordinates into a sequence of directional
   steps (:north, :south, :west, :east)"
-  [cells] nil)
+  [cells]
+  (let [reducer (fn [c1 c2]
+                  ;; Grab the neighbours to c1
+                  ;; c2 must be one of them (or fail)
+                  ;; return the direction dimension of the c2 neighbour
+                  (let [neighbours (neighbours-with-direction c1)
+                        [_ _ d] (first (filter (fn [[x y _]]
+                                                 (= [x y] c2)) neighbours))]
+                    (if d d
+                        (throw (IllegalArgumentException. "Cells ain't no neighbours")))))]
+
+    (map #(apply reducer %)
+         ;; Map over a sliding window with size 2 and step 1
+         (partition 2 1 cells))))
 
 (defn next-step
   "Find the next step in the maze solution"
