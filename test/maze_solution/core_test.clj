@@ -16,6 +16,16 @@
 (defn path-of [& pairs]
   (mapcat (fn [[n d]] (repeat n d)) pairs))
 
+(deftest finding-end-cell
+  (let [cells [
+               [\# \# \#]
+               [\# \X \#]
+               [\# \O \#]
+               ]]
+  (is (= [1 1]
+         (find-endcell cells [[1 1] [0 1]])))
+  (is (nil? (find-endcell cells [[0 0] [2 2]])))))
+
 (deftest creating-path
   (is (= [:north :north :north]
          (create-steps [[5 5] [5 4] [5 3] [5 2]])))

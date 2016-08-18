@@ -28,8 +28,11 @@
   (filter (fn [[x y]] (not (some? (visited [x y])))) neighbours))
 
 (defn find-endcell
-  "TODO: Return the end-cell if it's one of the neighbours"
-  [cells neighbours] nil)
+  "Return the end-cell if it's one of the neighbours"
+  [cells neighbours]
+  (first
+   (filter (fn [xy] (= \X (m-get cells xy)))
+           neighbours)))
 
 (defn create-steps
   "Convert a series of coordinates into a sequence of directional
@@ -52,9 +55,10 @@
 (defn next-step
   "Find the next step in the maze solution"
   [{:keys [position visited trail cells] :as maze}]
-  (let [
-        ;; Find the neighbours
+  (let [;; Find the neighbours
         neighbours (neighbours position)
+        ;; Remove any walls
+        neighbours (remove (fn [xy] (= \# (m-get cells xy))) neighbours)
         ;; Remove visited cells
         neighbours (remove-visited neighbours visited)]
     (if (empty? neighbours)
@@ -80,7 +84,6 @@
 (defn render-solution
   ;; TODO: Render the solution to stdout.
   [maze] "")
-
 
 (defn step [maze] (if (:done maze) maze
                       ;; TODO: Short-circuit until we've implemented 'next-step'
