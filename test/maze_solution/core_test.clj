@@ -39,8 +39,15 @@
                   [2 :east]
                   [2 :south]
                   [4 :west]
-                  [4 :west]
                   [2 :north]
                   [2 :west]
                   [7 :south])
-         (solution-for "normal" "001"))))
+         (solution-for "normal" "001")))
+  (is (= (path-of [7 :east]
+                  [4 :north]
+                  [2 :west]
+                  [2 :south]
+                  [4 :west]
+                  [2 :north]
+                  [2 :east])
+         (solution-for "normal" "002"))))

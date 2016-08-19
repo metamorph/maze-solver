@@ -46,7 +46,7 @@
                         [_ _ d] (first (filter (fn [[x y _]]
                                                  (= [x y] c2)) neighbours))]
                     (if d d
-                        (throw (IllegalArgumentException. "Cells ain't no neighbours")))))]
+                        (throw (IllegalArgumentException. (format "Cells %s  and %s are not neighbours" c1 c2))))))]
 
     (map #(apply reducer %)
          ;; Map over a sliding window with size 2 and step 1
@@ -70,7 +70,7 @@
       ;; drop the last element in trail, and set that as position
       (-> maze
           (assoc :position (last trail)) ;; update current position
-          (assoc :trail (drop-last trail)) ;; update trail
+          (assoc :trail (vec (drop-last trail))) ;; update trail
           (assoc :visited (conj visited position))) ;; set position as visited
 
       ;; Look for the end cell amongst the neighbours
@@ -93,10 +93,7 @@
 (defn step [maze]
   (if (:done maze)
     maze
-    (let [maze (next-step maze)]
-      (do
-        (println (str "TRAIL: " (:trail maze)))
-        maze))))
+    (next-step maze)))
 
 (defn parse-maze
   "Read a maze as string - convert internal representation"
