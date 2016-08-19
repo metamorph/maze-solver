@@ -57,6 +57,10 @@
   [{:keys [position visited trail cells] :as maze}]
   (let [;; Find the neighbours
         neighbours (neighbours position)
+
+        ;; Remove any out-of-bounds cells
+        neighbours (remove #(nil? (m-get cells %)) neighbours)
+
         ;; Remove any walls
         neighbours (remove (fn [xy] (= \# (m-get cells xy))) neighbours)
         ;; Remove visited cells
@@ -78,6 +82,7 @@
 
         ;; Noop - select a random neighbour and carry on)
         (-> maze
+            (assoc :trail (conj trail position))
             (assoc :position (rand-nth neighbours))
             (assoc :visited (conj visited position)))))))
 
@@ -85,9 +90,10 @@
   ;; TODO: Render the solution to stdout.
   [maze] "")
 
-(defn step [maze] (if (:done maze) maze
-                      ;; TODO: Short-circuit until we've implemented 'next-step'
-                      (next-step (assoc maze :done true))))
+(defn step [maze]
+  (if (:done maze)
+    maze
+    (next-step maze)))
 
 (defn parse-maze
   "Read a maze as string - convert internal representation"
