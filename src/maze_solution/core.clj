@@ -24,15 +24,13 @@
 
 (defn remove-visited
   "Removes those neighbours that are in the set +visited+"
-  [neighbours visited]
-  (filter (fn [[x y]] (not (some? (visited [x y])))) neighbours))
+  [visited neighbours]
+  (filter #(not (some? (visited %))) neighbours))
 
 (defn find-endcell
   "Return the end-cell if it's one of the neighbours"
   [cells neighbours]
-  (first
-   (filter (fn [xy] (= \X (m-get cells xy)))
-           neighbours)))
+  (first (filter #(= \X (m-get cells %)) neighbours)))
 
 (defn create-steps
   "Convert a series of coordinates into a sequence of directional
@@ -53,24 +51,19 @@
          (partition 2 1 cells))))
 
 (defn next-step
-  "Find the next step in the maze solution"
+  "Find the next step in the maze solution."
   [{:keys [position visited trail cells] :as maze}]
   (let [;; Find the neighbours
-        neighbours (neighbours position)
-
-        ;; Remove any out-of-bounds cells
-        neighbours (remove #(nil? (m-get cells %)) neighbours)
-
-        ;; Remove any walls
-        neighbours (remove (fn [xy] (= \# (m-get cells xy))) neighbours)
-        ;; Remove visited cells
-        neighbours (remove-visited neighbours visited)]
+        neighbours (->> (neighbours position)
+                        (remove #(nil? (m-get cells %)))
+                        (remove #(= \# (m-get cells %)))
+                        (remove-visited visited))]
     (if (empty? neighbours)
       ;; All neighbours are visited - need to backtrack!
       ;; drop the last element in trail, and set that as position
       (-> maze
-          (assoc :position (last trail)) ;; update current position
-          (assoc :trail (vec (drop-last trail))) ;; update trail
+          (assoc :position (first trail)) ;; update current position
+          (assoc :trail (drop 1 trail)) ;; update trail
           (assoc :visited (conj visited position))) ;; set position as visited
 
       ;; Look for the end cell amongst the neighbours
@@ -108,14 +101,12 @@
                              x (range (count (get char-matrix y)))] [x y])
         ;; Find the starting-point
         starting-point (first
-                        (filter
-                         (fn [xy] (= \O (m-get char-matrix xy)))
-                         coords))]
+                        (filter #(= \O (m-get char-matrix %)) coords))]
 
     {:cells          char-matrix
      :starting-point starting-point
      :position       starting-point
-     :trail          []
+     :trail          '()
      :visited        #{starting-point}}))
 
 (defn solve-maze [maze]
@@ -125,4 +116,4 @@
                       (first))]
     ;; The steps through the maze is in :trail
     ;; Convert that to steps
-    (create-steps (:trail solution))))
+    (create-steps (reverse (:trail solution)))))
