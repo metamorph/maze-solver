@@ -5,8 +5,8 @@
   [arr [x y]]
   (if (and (>= x 0)
            (>= y 0)
-           (>= (count arr) y)
-           (>= (count (arr y)) x))
+           (> (count arr) y)
+           (> (count (arr y)) x))
     ((arr y) x)
     nil))
 
@@ -77,7 +77,7 @@
       (if-let [end-cell (find-endcell cells neighbours)]
         ;; We found it! Add it to the trail and call it a day
         (-> maze
-            (assoc :trail (conj trail end-cell))
+            (assoc :trail (conj (conj trail position) end-cell))
             (assoc :done true))
 
         ;; Noop - select a random neighbour and carry on)
@@ -93,7 +93,10 @@
 (defn step [maze]
   (if (:done maze)
     maze
-    (next-step maze)))
+    (let [maze (next-step maze)]
+      (do
+        (println (str "TRAIL: " (:trail maze)))
+        maze))))
 
 (defn parse-maze
   "Read a maze as string - convert internal representation"
@@ -125,6 +128,4 @@
                       (first))]
     ;; The steps through the maze is in :trail
     ;; Convert that to steps
-    (do
-      (prn (render-solution solution))
-      (create-steps (:trail solution)))))
+    (create-steps (:trail solution))))
